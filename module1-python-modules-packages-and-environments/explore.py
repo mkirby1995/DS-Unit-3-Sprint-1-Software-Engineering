@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import classification_report, confusion_matrix
 
-class explore:
+class Explore:
 
     """A class for exploring dataframes."""
 
@@ -42,17 +42,30 @@ class explore:
       return high_cardinality_features
 
 
-    def model_analysis(model, train_X, train_y, model_name):
-      model_probabilities = model.predict_proba(train_X)
+    def model_analysis(model, feature_matrix, target_vector, model_name):
+        """
+        INPUT
+        model - the model which the analysis will be run on
+        feature_matrix - selected features in a matrix format
+        target_vector - target labels in a vector format
+        model_name - string of model name for chart title
+        
+        OUTPUT
+        This function will output a classification report, prediction probability plot,
+        confusion matrix table and a confusion matrix heatmap.
+        """
+      model_probabilities = model.predict_proba(feature_matrix)
 
       Model_Prediction_Probability = []
 
-      for _ in range(len(train_X)):
+      for _ in range(len(feature_matrix)):
         x = max(model_probabilities[_])
         Model_Prediction_Probability.append(x)
 
       plt.figure(figsize=(15,10))
+    
       sns.distplot(Model_Prediction_Probability)
+        
       plt.title(model_name+'Prediction Probabilities')
       # Set x and y ticks
       plt.xticks(color='gray')
@@ -76,14 +89,14 @@ class explore:
       ax.tick_params(color='white')
       plt.show();
 
-      model_predictions = model.predict(train_X)
+      model_predictions = model.predict(feature_matrix)
 
-      print('\n\n', classification_report(train_y, model_predictions,
-                                target_names=['0-Poisonous', '1-Edible']))
+      print('\n\n', classification_report(target_vector, model_predictions,
+                                target_names=['0', '1']))
 
-      con_matrix = pd.DataFrame(confusion_matrix(train_y, model_predictions),
-                                            columns=['Predicted Poison', 'Predicted Edible'],
-                                            index=['Actual Poison', 'Actual Edible'])
+      con_matrix = pd.DataFrame(confusion_matrix(target_vector, model_predictions),
+                                            columns=['Predicted 0', 'Predicted 1'],
+                                            index=['Actual 0', 'Actual 1'])
 
       plt.figure(figsize=(15,10))
       sns.heatmap(data=con_matrix, cmap='cool');
